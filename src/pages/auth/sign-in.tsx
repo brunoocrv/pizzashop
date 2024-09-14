@@ -1,5 +1,5 @@
 import { Helmet } from "react-helmet-async";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { Loader2 } from "lucide-react";
 
@@ -9,19 +9,28 @@ import { Label } from "@/components/ui/label";
 import { toast } from "@/components/ui/use-toast";
 
 import { SignInForm } from "./schemas/sign-in.schemas";
+import { useMutation } from "@tanstack/react-query";
+import { signIn } from "@/api/sign-in";
 
 export function SignIn() {
+  const [searchParams] = useSearchParams();
   const {
     register,
     handleSubmit,
     formState: { isSubmitting },
-  } = useForm<SignInForm>();
+  } = useForm<SignInForm>({
+    defaultValues: {
+      email: searchParams.get("email") ?? "",
+    },
+  });
+
+  const { mutateAsync: mutateAuth } = useMutation({
+    mutationFn: signIn,
+  });
 
   async function handleSignIn(data: SignInForm) {
     try {
-      console.log(data);
-
-      await new Promise((resolve) => setTimeout(resolve, 3000));
+      await mutateAuth({ email: data.email });
 
       toast({
         title: "Tudo certo por aqui!!",

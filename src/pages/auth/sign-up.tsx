@@ -10,6 +10,8 @@ import { toast } from "@/components/ui/use-toast";
 
 import { SignUpForm } from "./schemas/sign-up.schemas";
 import { ToastAction } from "@/components/ui/toast";
+import { useMutation } from "@tanstack/react-query";
+import { registerRestaurant } from "@/api/register-restaurant";
 
 export function SignUp() {
   const navigate = useNavigate();
@@ -19,18 +21,25 @@ export function SignUp() {
     formState: { isSubmitting },
   } = useForm<SignUpForm>();
 
+  const { mutateAsync: mutateRestaurant } = useMutation({
+    mutationFn: registerRestaurant,
+  });
+
   async function handleSignIn(data: SignUpForm) {
     try {
-      console.log(data);
-
-      await new Promise((resolve) => setTimeout(resolve, 3000));
+      await mutateRestaurant(data);
 
       toast({
         title: "Restaurante cadastrado com sucesso!!",
         description: "Enviamos um link de autenticação para o seu email.",
         variant: "success",
         action: (
-          <ToastAction altText="to sign in" onClick={() => navigate("/sign-in")}>Entrar</ToastAction>
+          <ToastAction
+            altText="to sign in"
+            onClick={() => navigate("/sign-in")}
+          >
+            Entrar
+          </ToastAction>
         ),
       });
     } catch (error) {
